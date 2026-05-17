@@ -707,11 +707,16 @@
     <p class="footer-copy">&copy; 2026 Zibboworkz. All rights reserved.</p>
   </footer>
 
-  <!-- EmailJS Library -->
-  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/index.min.js"></script>
+  <!-- EmailJS Library with Fallback CDN -->
+  <script src="https://unpkg.com/@emailjs/browser@4/dist/index.min.js"></script>
   <script>
-    // Initialize EmailJS with your Public Key
-    emailjs.init('Li1lOci_mcAU_ArH2');
+    // Initialize EmailJS
+    if (typeof emailjs !== 'undefined') {
+      emailjs.init('Li1lOci_mcAU_ArH2');
+      console.log('EmailJS loaded successfully');
+    } else {
+      console.warn('EmailJS library failed to load from CDN');
+    }
 
     // Scroll fade-in observer
     const observer = new IntersectionObserver((entries) => {
@@ -734,9 +739,13 @@
       btn.textContent = 'Sending...';
 
       try {
+        if (typeof emailjs === 'undefined') {
+          throw new Error('EmailJS library not loaded. Please refresh the page and check your connection.');
+        }
+
         await emailjs.sendForm(
-          'service_62rzt4n',      // Replace with your EmailJS Service ID
-          'template_5y8fvhx',     // Replace with your EmailJS Template ID
+          'service_62rzt4n',
+          'template_5y8fvhx',
           this
         );
 
@@ -754,7 +763,7 @@
           this.reset();
         }, 3000);
       } catch (error) {
-        console.error('EmailJS Error:', error);
+        console.error('Error sending email:', error);
 
         // Error feedback
         btn.textContent = 'Error - Try Again';
